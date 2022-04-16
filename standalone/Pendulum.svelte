@@ -2,7 +2,7 @@
   // demo: https://svelte.dev/repl/cc4e5a8fe4a1416f8613902565f46634?version=3.47.0
 	const TIME_PERIOD = 5; // seconds
 	const AMPLITUDE = Math.PI / 3; // radians
-	const STRING_LENGTH = "35vmin"; // pixels
+	const STRING_LENGTH = "35vmin"; // css length
 	
 	let anchorX = window.innerWidth / 2;
 	let anchorY = window.innerHeight / 2;
