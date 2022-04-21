@@ -1,17 +1,17 @@
 <script>
-    let size = 100; // pixels
+    let radius = 100; // pixels
     let percent = 50;
 
     let x,
         y,
-        meterRadius = size * 0.8,
+        meterRadius = radius * 1.1,
         startAngle = 210,
         endAngle;
     $: endAngle = startAngle + ((360 - startAngle) * 2 * percent) / 100;
-    let start, end, drawLargerArc;
-    x = window.innerWidth / 2;
-    y = window.innerHeight / 2;
+    x = radius * 1.2;
+    y = radius * 1.2;
 
+    let start, end, drawLargerArc;
     $: start = polarToCartesian(x, y, meterRadius, endAngle);
     $: end = polarToCartesian(x, y, meterRadius, startAngle);
     $: drawLargerArc = endAngle - startAngle > 180 ? "1" : "0";
@@ -33,31 +33,50 @@
 <svg
     on:pointermove|stopPropagation={(e) => {
         if (e.buttons === 1) {
-            percent = boundValue(percent - (50 * e.movementY) / size, 0, 100);
+            percent = boundValue(percent - (50 * e.movementY) / radius, 0, 100);
         }
     }}
+    height={radius * 2.4}
+    width={radius * 2.4}
 >
-    <circle r={size} cx={x} cy={y} />
+    <circle r={radius} cx={x} cy={y} />
     <path
         d="M {start.x} {start.y} A {meterRadius} {meterRadius} 0 {drawLargerArc} 0 {end.x} {end.y}"
-        stroke-width={size / 12}
+        stroke-width={radius / 12}
     />
+    <text {x} y={y + radius * 0.15} font-size={radius * 0.5}>{Math.round(percent)}%</text>
 </svg>
 
 <style>
     svg {
-        height: 100%;
-        width: 100%;
         touch-action: none;
+        user-select: none;
     }
 
     circle {
         fill: hsl(0 0% 10%);
+        transition: fill 0.2s;
+    }
+
+    circle:active {
+        fill: hsl(0 0% 20%);
     }
 
     path {
         fill: none;
         stroke: hsl(180 50% 50%);
         stroke-linecap: round;
+        transition: stroke 0.2s;
+    }
+
+    circle:active + path {
+        stroke: hsl(180 70% 70%);
+    }
+
+    text {
+        font-family: Arial, sans-serif;
+        fill: hsl(0 0% 80%);
+        text-anchor: middle;
+        pointer-events: none;
     }
 </style>
