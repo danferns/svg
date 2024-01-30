@@ -1,15 +1,22 @@
 <script>
-  // demo: https://svelte.dev/repl/80ddad7d66ce4331bfd119707a3d6d66?version=3.47.0
-	// drag the anchor (black circle) around to move the pendulum
-	// click anywhere on the background to set the initial amplitude
+  	// demo: https://svelte.dev/repl/f8b969c1ed5a498d9586d32fe74f8481?version=4.2.9
+
+	function setSizes() {
+		STRING_LENGTH = Math.min(window.innerWidth, window.innerHeight) * 0.35; // 35% of screen
+		anchorX = window.innerWidth / 2;
+		anchorY = window.innerHeight / 2 - STRING_LENGTH / 2;
+	}
 	
-	const TIME_PERIOD = 5; // seconds
-	let AMPLITUDE = Math.PI / 3; // initial aplitude in radians
-	const STRING_LENGTH = "35vmin"; // css length
-	const DECAY_MULTIPLIER = 0.01; // smaller value -> slower decay
-	
-	let anchorX = window.innerWidth / 2;
-	let anchorY = window.innerHeight / 2;
+	const TIME_PERIOD = 3; // seconds
+	let AMPLITUDE = 0; // initial aplitude in radians
+	const DECAY_MULTIPLIER = 0.1; // smaller value -> slower decay
+
+	// setting up the position and size of the pendulum
+	let anchorX;
+	let anchorY;
+	let STRING_LENGTH;
+	window.addEventListener("resize", setSizes);
+	setSizes();
 	
 	let initTime = Date.now() / 1000;
 	let time = 0;
@@ -24,34 +31,13 @@
 	let theta, bobX, bobY;
 	$: decay = Math.E ** (-DECAY_MULTIPLIER * (time - initTime));
 	$: theta = Math.cos(2 * Math.PI * (time - initTime) / TIME_PERIOD) * AMPLITUDE * decay;
-	$: bobX = `calc(${anchorX}px + ${STRING_LENGTH} * ${Math.sin(theta)})`;
-	$: bobY = `calc(${anchorY}px + ${STRING_LENGTH} * ${Math.cos(theta)})`;
-	
-	// panning
-	
-	function handleMousedown(event) {
-		anchorX = event.clientX;
-		anchorY = event.clientY;
+	$: bobX = anchorX + STRING_LENGTH * Math.sin(theta);
+	$: bobY = anchorY + STRING_LENGTH * Math.cos(theta);
 
-		window.addEventListener('mousemove', handleMousemove);
-		window.addEventListener('mouseup', handleMouseup);
-	}
-
-	function handleMousemove(event) {
-		anchorX = event.clientX;
-		anchorY = event.clientY;
-	}
-	
-	function handleMouseup(event) {
-		anchorX = event.clientX;
-		anchorY = event.clientY;
-
-		window.removeEventListener('mousemove', handleMousemove);
-		window.removeEventListener('mouseup', handleMouseup);
-	}
 </script>
 
 <svelte:window 
+	
 	on:pointerdown={(e) => {
 		AMPLITUDE = Math.atan((anchorX - e.clientX) / (anchorY - e.clientY));
 		if (anchorY - e.clientY > 0) {
@@ -59,6 +45,7 @@
 		}
 		initTime = Date.now() / 1000;
 	}}
+	
 />
 
 <svg>
@@ -69,7 +56,6 @@
 		r=10
 		cx={anchorX}
 		cy={anchorY}
-		on:pointerdown|stopPropagation={handleMousedown}
 		>
 	</circle>
 	
@@ -94,8 +80,14 @@
 </svg>
 
 <style>
+
+	:global(body) {
+		margin: 0
+	}
+	
 	svg {
 		height: 100%;
 		width: 100%;
 	}
+	
 </style>
